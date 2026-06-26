@@ -24,13 +24,7 @@ jobs:
         pip install --upgrade pip
         pip install cython buildozer sh
 
-    - name: Run Buildozer Build
+    - name: Verify and Run Buildozer
       run: |
-        yes | buildozer -v android debug
-
-    - name: Upload Finished APK
-      uses: actions/upload-artifact@v4
-      with:
-        name: KML-Converter-Pro-APK
-        path: bin/*.apk
-        
+        ls -la
+        yes | buildozer --profile demo android debug
