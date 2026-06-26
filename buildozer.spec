@@ -1,7 +1,7 @@
 [app]
 title = kml converter pro
-package.name = kmlconverterpro
-package.domain = com.bimanmalik
+package.name = kmlconverter
+package.domain = org.dilipmalik
 source.dir = .
 source.include_exts = py,png,jpg,kv,atlas
 version = 1.0
