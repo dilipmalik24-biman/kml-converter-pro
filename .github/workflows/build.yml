@@ -1,61 +1,35 @@
-name: Build APK
-
+name: Build Android APK
 on:
+  workflow_dispatch:
   push:
     branches: [ main ]
-  workflow_dispatch:
 
 jobs:
-  android-build:
+  build:
     runs-on: ubuntu-22.04
     steps:
-    - name: Checkout Repository Code
-      uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.11'
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
 
-    - name: Install System Dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y build-essential git ffmpeg libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev libportmidi-dev libswscale-dev libavformat-dev libavcodec-dev zlib1g-dev libgstreamer1.0-dev gstreamer1.0-plugins-base gstreamer1.0-plugins-good libsqlite3-dev libtool autoconf automake pkg-config
-        pip install --upgrade pip
-        pip install cython buildozer sh
+      - name: Install System Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential git ffmpeg libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev libportmidi-dev libswscale-dev libavformat-dev libavcodec-dev zlib1g-dev libgstreamer1.0-dev gstreamer1.0-plugins-base gstreamer1.0-plugins-good libsqlite3-dev sqlite3 libtool autoconf automake pkg-config libffi-dev libssl-dev
+          pip install --upgrade pip setuptools virtualenv cython==0.29.36 buildozer
 
-    - name: Generate Fresh Spec File
-      run: |
-        rm -f buildozer.spec
-        cat << 'EOF' > buildozer.spec
-        [app]
-        title = kml converter pro
-        package.name = kmlconverter
-        package.domain = org.dilipmalik
-        source.dir = .
-        source.include_exts = py,png,jpg,kv,atlas
-        version = 1.0
-        requirements = python3,kivy==2.3.1,kivymd==1.2.0,pandas,simplekml,openpyxl,jnius
-        orientation = portrait
-        fullscreen = 1
-        android.permissions = INTERNET, READ_EXTERNAL_STORAGE, WRITE_EXTERNAL_STORAGE, MANAGE_EXTERNAL_STORAGE
-        android.api = 33
-        android.minapi = 21
-        android.ndk = 25b
-        android.archs = arm64-v8a, armeabi-v7a
+      - name: Build with Buildozer
+        run: |
+          buildozer android debug
+        env:
+          BUILDOZER_ALLOW_KIVY_NEW_DESIGNER: 1
 
-        [buildozer]
-        log_level = 2
-        warn_on_root = 0
-        EOF
-
-    - name: Run Buildozer Build
-      run: |
-        yes | buildozer -v android debug
-
-    - name: Upload Finished APK
-      uses: actions/upload-artifact@v4
-      with:
-        name: KML-Converter-Pro-APK
-        path: bin/*.apk
-        
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: KML-Converter-APK
+          path: bin/*.apk
+          
